@@ -11,7 +11,7 @@ namespace DatabaseFirstADO.Interfaces
     {
 
         // InsertData - (C)reate
-        int InsertData(SqlConnection connection, string tableName, T aObject);
+        int InsertData(string connectionString, string tableName, T aObject);
 
         // SelectData - (R)ead
         ICollection<T> SelectData(string sql, SqlConnection connection);

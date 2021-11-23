@@ -11,6 +11,8 @@ namespace DatabaseFirstADO.Services
 {
     class MyTableService<T>: IDataService<T>
     {
+        public string connectionString = @"Server=NBD-LW13-N;Database=MyDatabase;Trusted_Connection=True";
+
         public SqlConnection connection {
             get;
             private set;
@@ -19,7 +21,7 @@ namespace DatabaseFirstADO.Services
 
         public MyTableService(string sql, string entity)
         {
-            string connectionString = @"Server=NBD-LW13-N;Database=MyDatabase;Trusted_Connection=True";
+            
             this.entity = entity;
             //string sql = "SELECT * FROM dbo.mytable";
             //string sql2 = "SELECT * FROM dbo.mytable WHERE id = 1002";
@@ -40,7 +42,7 @@ namespace DatabaseFirstADO.Services
                 }
                 finally
                 {
-                    //connection.Close();
+                    connection.Close();
                 }
             }
         }
@@ -83,17 +85,21 @@ namespace DatabaseFirstADO.Services
             }
         }
 
-        public int InsertData(SqlConnection connection, string tableName, T aObject)
+        public int InsertData(string connectionString, string tableName, T aObject)
         {
-            SqlCommand command = new SqlCommand();
-            command.Connection = connection;
+
+            using (SqlConnection myConnection = new SqlConnection(connectionString))
+            using (SqlDataAdapter dbAdapter = new SqlDataAdapter("SELECT first_name, last_name FROM dbo.customers", myConnection))
+            using (SqlCommandBuilder cmdBuilder = new SqlCommandBuilder(dbAdapter))
+            {
+                myConnection.Open();
+
+                SqlCommand command = cmdBuilder.GetInsertCommand();
+                //SqlParameterCollection parameters = command.Parameters;
             
-            SqlDataAdapter dbAdapter = new SqlDataAdapter("SELECT * FROM dbo.customers", connection);
-            SqlCommandBuilder cmdBuilder = new SqlCommandBuilder(dbAdapter);
+                Console.WriteLine(command.CommandText);
+            }
             
-            command = cmdBuilder.GetInsertCommand();
-            
-            Console.WriteLine(command.CommandText);
 
             return (0);
         }

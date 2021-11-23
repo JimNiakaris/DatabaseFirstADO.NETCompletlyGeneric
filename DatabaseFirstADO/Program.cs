@@ -15,7 +15,7 @@ namespace DatabaseFirstADO
         {
             string sql = "SELECT * FROM dbo.mytable";
             MyTableService<MyTable> myTableService = new MyTableService<MyTable>(sql, "MyTable");
-            myTableService.InsertData(myTableService.connection, "Customer", new MyTable());
+            myTableService.InsertData(myTableService.connectionString, "Customer", new MyTable());
 
             sql = "SELECT * FROM dbo.Customers"; 
             MyTableService<Customer> myTableService2 = new MyTableService<Customer>(sql, "Customer");
