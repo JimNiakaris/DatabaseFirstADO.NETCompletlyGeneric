@@ -13,17 +13,13 @@ namespace DatabaseFirstADO
     {
         static void Main(string[] args)
         {
-            MyTableService<MyTable> myTableService = new MyTableService<MyTable>();
+            string sql = "SELECT * FROM dbo.mytable";
+            MyTableService<MyTable> myTableService = new MyTableService<MyTable>(sql, "MyTable");
 
-            // Customers
-            /* Id
-             * FirstName
-             * LastName
-             * Email
-             * DateOfBirth
-             * LandLineTel
-             * MobileTel
-             */
+            sql = "SELECT * FROM dbo.Customers"; 
+            MyTableService<Customer> myTableService2 = new MyTableService<Customer>(sql, "Customer");
+
+            
         }
 
         
