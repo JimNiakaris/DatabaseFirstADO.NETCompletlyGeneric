@@ -25,7 +25,8 @@ namespace DatabaseFirstADO.Services
                     Console.WriteLine(connection.State);
                     ICollection<T> myTables1 = SelectData(sql, connection);
                     PrintData(myTables1);
-                    SelectData(sql2, connection);
+                    ICollection<T> myTables2 = SelectData(sql2, connection);
+                    PrintData(myTables2);
                 }
                 catch (SqlException ex)
                 {
@@ -54,13 +55,16 @@ namespace DatabaseFirstADO.Services
             {
                 reader.Close();
             }
-            return ((ICollection<T>)myTables);
+            return (myTables);
         }
 
         public void PrintData(ICollection<T> table)
         {
             List<T> myTables = (List<T>)table;
-            Console.WriteLine(myTables[0].ToString());
+            foreach (var item in myTables)
+            {
+                Console.WriteLine(item.ToString());
+            }
         }
     }
 }

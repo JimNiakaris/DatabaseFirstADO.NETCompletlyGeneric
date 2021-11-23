@@ -14,6 +14,16 @@ namespace DatabaseFirstADO
         static void Main(string[] args)
         {
             MyTableService<MyTable> myTableService = new MyTableService<MyTable>();
+
+            // Customers
+            /* Id
+             * FirstName
+             * LastName
+             * Email
+             * DateOfBirth
+             * LandLineTel
+             * MobileTel
+             */
         }
 
         
