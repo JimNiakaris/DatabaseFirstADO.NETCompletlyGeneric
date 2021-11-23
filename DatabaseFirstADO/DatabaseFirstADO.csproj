@@ -43,9 +43,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="entities\MyTable.cs" />
+    <Compile Include="Entities\MyTable.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\MyTableService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
