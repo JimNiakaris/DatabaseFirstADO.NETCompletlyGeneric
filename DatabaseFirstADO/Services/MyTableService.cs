@@ -1,4 +1,5 @@
 ﻿using DatabaseFirstADO.Entities;
+using DatabaseFirstADO.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -8,9 +9,12 @@ using System.Threading.Tasks;
 
 namespace DatabaseFirstADO.Services
 {
-    class MyTableService<T>
+    class MyTableService<T>: IDataService<T>
     {
-        SqlConnection connection;
+        public SqlConnection connection {
+            get;
+            private set;
+        }
         private string entity;
 
         public MyTableService(string sql, string entity)
@@ -36,7 +40,7 @@ namespace DatabaseFirstADO.Services
                 }
                 finally
                 {
-                    connection.Close();
+                    //connection.Close();
                 }
             }
         }
@@ -77,6 +81,21 @@ namespace DatabaseFirstADO.Services
             {
                 Console.WriteLine(item.ToString());
             }
+        }
+
+        public int InsertData(SqlConnection connection, string tableName, T aObject)
+        {
+            SqlCommand command = new SqlCommand();
+            command.Connection = connection;
+            
+            SqlDataAdapter dbAdapter = new SqlDataAdapter("SELECT * FROM dbo.customers", connection);
+            SqlCommandBuilder cmdBuilder = new SqlCommandBuilder(dbAdapter);
+            
+            command = cmdBuilder.GetInsertCommand();
+            
+            Console.WriteLine(command.CommandText);
+
+            return (0);
         }
     }
 }
