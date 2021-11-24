@@ -2,6 +2,7 @@
 using DatabaseFirstADO.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -23,8 +24,6 @@ namespace DatabaseFirstADO.Services
         {
             
             this.entity = entity;
-            //string sql = "SELECT * FROM dbo.mytable";
-            //string sql2 = "SELECT * FROM dbo.mytable WHERE id = 1002";
             using (connection = new SqlConnection(connectionString))
             {
                 try
@@ -87,21 +86,91 @@ namespace DatabaseFirstADO.Services
 
         public int InsertData(string connectionString, string tableName, T aObject)
         {
-
+            int result;
             using (SqlConnection myConnection = new SqlConnection(connectionString))
-            using (SqlDataAdapter dbAdapter = new SqlDataAdapter("SELECT first_name, last_name FROM dbo.customers", myConnection))
+            using (SqlDataAdapter dbAdapter = new SqlDataAdapter($"SELECT * FROM dbo.{tableName}", myConnection))
             using (SqlCommandBuilder cmdBuilder = new SqlCommandBuilder(dbAdapter))
             {
                 myConnection.Open();
 
                 SqlCommand command = cmdBuilder.GetInsertCommand();
-                //SqlParameterCollection parameters = command.Parameters;
-            
-                Console.WriteLine(command.CommandText);
+                if (tableName == "mytable")
+                {
+                    MyTable mT = aObject as MyTable;
+                    command.Parameters[0].Value = mT.MyNumber;
+                    command.Parameters[1].Value = mT.MyString;
+                    command.Parameters[2].Value = mT.MyString2;
+                }
+                if (tableName == "customers")
+                {
+                    Customer c = aObject as Customer;
+                    command.Parameters[0].Value = c.FirstName;
+                    command.Parameters[1].Value = c.LastName;
+                    command.Parameters[2].Value = c.Email;
+                    command.Parameters[3].Value = c.DateOfBirth;
+                    command.Parameters[4].Value = c.LandLineTel;
+                    command.Parameters[5].Value = c.MobileTel;
+                }
+                result = command.ExecuteNonQuery();
             }
-            
+            return (result);
+        }
 
-            return (0);
+        public int UpdateData(string connectionString, string tableName, int id, T aObject)
+        {
+            int result;
+            using (SqlConnection myConnection = new SqlConnection(connectionString))
+            using (SqlDataAdapter dbAdapter = new SqlDataAdapter($"SELECT * FROM dbo.{tableName} WHERE id = {id}", myConnection))
+            using (SqlCommandBuilder cmdBuilder = new SqlCommandBuilder(dbAdapter)) // Do we need this???
+            {
+                myConnection.Open();
+
+                SqlCommand command = cmdBuilder.GetUpdateCommand(); // Do I need this???
+                DataTable dt = new DataTable(tableName);
+                dbAdapter.Fill(dt);
+                if(tableName == "mytable")
+                {
+                    var myTable = aObject as MyTable;
+                    dt.Rows[0][1] = myTable.MyNumber;
+                    dt.Rows[0][2] = myTable.MyString;
+                    dt.Rows[0][3] = myTable.MyString2;
+                    
+                }
+                if(tableName == "customers")
+                {
+                    var customer = aObject as Customer;
+                    dt.Rows[0][1] = customer.FirstName;
+                    dt.Rows[0][2] = customer.LastName;
+                    dt.Rows[0][3] = customer.Email;
+                    dt.Rows[0][4] = customer.DateOfBirth;
+                    dt.Rows[0][5] = customer.LandLineTel;
+                    dt.Rows[0][6] = customer.MobileTel;
+                }
+                result = dbAdapter.Update(dt);
+                myConnection.Close();
+            }
+            return (result);
+        }
+
+        public int DeleteData(string connectionString, string tableName, int id)
+        {
+            int result;
+            using (SqlConnection myConnection = new SqlConnection(connectionString))
+            using (SqlDataAdapter dbAdapter = new SqlDataAdapter($"SELECT * FROM dbo.{tableName} WHERE id = {id}", myConnection))
+            using (SqlCommandBuilder cmdBuilder = new SqlCommandBuilder(dbAdapter)) // Do we need this???
+            {
+                myConnection.Open();
+
+                SqlCommand command = cmdBuilder.GetDeleteCommand(); // Do we need this? 
+                DataTable dt = new DataTable(tableName);
+                dbAdapter.Fill(dt);
+                foreach (DataRow row in dt.Rows)
+                {
+                    row.Delete();
+                }
+                result = dbAdapter.Update(dt);
+            }
+            return (result);
         }
     }
 }

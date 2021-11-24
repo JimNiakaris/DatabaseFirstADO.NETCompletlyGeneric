@@ -17,9 +17,12 @@ namespace DatabaseFirstADO.Interfaces
         ICollection<T> SelectData(string sql, SqlConnection connection);
 
         // UpdateData - (U)pdate
-        // DeleteData - (D)elete
+        int UpdateData(string connectionString, string tableName, int id, T aObject);
 
+        // DeleteData - (D)elete
+        int DeleteData(string connectionString, string tableName, int id);
 
         // CreateTable - create a table using the parameters passed
+        // to be continued!
     }
 }
