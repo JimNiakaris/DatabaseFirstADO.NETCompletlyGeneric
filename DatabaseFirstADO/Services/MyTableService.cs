@@ -91,27 +91,42 @@ namespace DatabaseFirstADO.Services
             using (SqlDataAdapter dbAdapter = new SqlDataAdapter($"SELECT * FROM dbo.{tableName}", myConnection))
             using (SqlCommandBuilder cmdBuilder = new SqlCommandBuilder(dbAdapter))
             {
-                myConnection.Open();
+                try
+                {
+                    myConnection.Open();
 
-                SqlCommand command = cmdBuilder.GetInsertCommand();
-                if (tableName == "mytable")
-                {
-                    MyTable mT = aObject as MyTable;
-                    command.Parameters[0].Value = mT.MyNumber;
-                    command.Parameters[1].Value = mT.MyString;
-                    command.Parameters[2].Value = mT.MyString2;
+                    SqlCommand command = cmdBuilder.GetInsertCommand();
+                    if (tableName == "mytable")
+                    {
+                        MyTable mT = aObject as MyTable;
+                        command.Parameters[0].Value = mT.MyNumber;
+                        command.Parameters[1].Value = mT.MyString;
+                        command.Parameters[2].Value = mT.MyString2;
+                    }
+                    if (tableName == "customers")
+                    {
+                        Customer c = aObject as Customer;
+                        command.Parameters[0].Value = c.FirstName;
+                        command.Parameters[1].Value = c.LastName;
+                        command.Parameters[2].Value = c.Email;
+                        command.Parameters[3].Value = c.DateOfBirth;
+                        command.Parameters[4].Value = c.LandLineTel;
+                        command.Parameters[5].Value = c.MobileTel;
+                    }
+                    result = command.ExecuteNonQuery();
+                    command.Dispose(); // we don't need to do this because Garbage Collector(GC) does his job.... I HOPE!!!
                 }
-                if (tableName == "customers")
+                catch(SqlException ex)
                 {
-                    Customer c = aObject as Customer;
-                    command.Parameters[0].Value = c.FirstName;
-                    command.Parameters[1].Value = c.LastName;
-                    command.Parameters[2].Value = c.Email;
-                    command.Parameters[3].Value = c.DateOfBirth;
-                    command.Parameters[4].Value = c.LandLineTel;
-                    command.Parameters[5].Value = c.MobileTel;
+                    result = 0;
                 }
-                result = command.ExecuteNonQuery();
+                finally
+                {
+
+                    cmdBuilder.Dispose();
+                    dbAdapter.Dispose();
+                    myConnection.Close();
+                }
             }
             return (result);
         }
@@ -127,6 +142,9 @@ namespace DatabaseFirstADO.Services
 
                 SqlCommand command = cmdBuilder.GetUpdateCommand(); // Do I need this???
                 DataTable dt = new DataTable(tableName);
+                DataSet ds = new DataSet(tableName);
+                dbAdapter.Fill(ds);
+                Console.WriteLine($"{ds.Tables.Count}");
                 dbAdapter.Fill(dt);
                 if(tableName == "mytable")
                 {
@@ -168,6 +186,7 @@ namespace DatabaseFirstADO.Services
                 {
                     row.Delete();
                 }
+                //dt.Rows[0].Delete();
                 result = dbAdapter.Update(dt);
             }
             return (result);
