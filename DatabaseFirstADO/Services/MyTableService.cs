@@ -51,22 +51,51 @@ namespace DatabaseFirstADO.Services
             ICollection<T> myTables = new List<T>();
             SqlCommand command = new SqlCommand(sql, connection);
             SqlDataReader reader = command.ExecuteReader();
+            Type entityType = typeof(T);
             while (reader.Read())
             {
-                // can we make this more Generic????
-                if(entity == "MyTable")
+                // can we make this more Generic???? Yes we can!
+                
+                //if(entity == "MyTable")
+                //{
+                //    MyTable _myTable = new MyTable(reader.GetInt32(0), reader.GetInt32(1), reader.GetString(2), reader.GetString(3));
+                //    T myTable = (T)(object)_myTable;
+                //    myTables.Add(myTable);
+                //}
+                //else if(entity == "Customer")
+                //{
+                //    Customer _customer = new Customer(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), 
+                //        reader.GetString(3), reader.GetDateTime(4), reader.GetString(5), reader.GetString(6));
+                //    T myTable = (T)(object)_customer;
+                //    myTables.Add(myTable);
+                //}
+
+                //Create an instance of the class passed in as T and get the second constructor this class
+                object passedClass = Activator.CreateInstance(entityType);
+                var constructor = passedClass.GetType().GetConstructors()[1]; 
+                var parameters = constructor.GetParameters().ToArray();
+                //Now we have an array of all the parameters of the second constructor. We also need the count of those parameters
+                int paramCount = parameters.Count();
+                // We need to invoke the constructor of the passed class with the values 
+                // that we are going to get from the SqlDataReader. For this we are going to
+                // use the the second overload of the Invoke method which takes an object
+                // of our passed class and an object array which will be our reader values
+                
+                object [] readValues = new object[paramCount];
+                //Iterate through the array of parameters and set the value of the array object
+                //readValues based on the value we get from the reader and the index of the value we get it from.
+                foreach(var parameter in parameters)
                 {
-                    MyTable _myTable = new MyTable(reader.GetInt32(0), reader.GetInt32(1), reader.GetString(2), reader.GetString(3));
-                    T myTable = (T)(object)_myTable;
-                    myTables.Add(myTable);
+                    readValues.SetValue(reader.GetValue(parameter.Position), parameter.Position);
                 }
-                else if(entity == "Customer")
-                {
-                    Customer _customer = new Customer(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), 
-                        reader.GetString(3), reader.GetDateTime(4), reader.GetString(5), reader.GetString(6));
-                    T myTable = (T)(object)_customer;
-                    myTables.Add(myTable);
-                }
+                // Now we have an object array of the reader values that we can pass in the Invoke method
+
+                constructor.Invoke(passedClass, readValues);
+
+                // Now we can add the passed class into the generic List myTables
+
+                myTables.Add((T)(object)passedClass);
+
             }
             if (!reader.IsClosed)
             {
